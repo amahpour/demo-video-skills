@@ -21,6 +21,8 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **Typing at real pace, cut short, never sped up.** Show the first seconds of typing, then cut to the result. Sped-up typing is unreadable. Speed up the waiting instead, and label it ("8× speed").
 - **Legible at README width (about 830 px).** Record the UI at 1280×720 CSS pixels at 2 to 2.5× device scale, crop to the part that matters, and aim for text about twice its normal size in the final frame.
 - **Match the pieces.** Force `prefers-color-scheme: dark` (or light) in the recorded browser so the app matches the terminals or slides beside it.
+- **Commands that answer in one line.** A test runner streaming log lines buried its own result and got a cut rejected; one-liners with an immediate answer (set a value, let it settle, read it back) read at a glance. If a long run has to be shown, check the frame at the end of each beat: the line that matters may have scrolled away.
+- **Say when a frame is held.** Freezing on a result long enough to read it is fine when the viewer can tell, the way a speed-up carries its badge: mark it in the caption.
 - **Captions: six words or fewer, one per beat, plain.** Put a caption at the top when the bottom of the frame is the thing being shown (a text box while typing). Give each name one colour and use it everywhere.
 - **Splash and end card.** A splash (icon, name, tagline) plays over the music's lead-in, and it is the file's first frame, because GitHub shows a video paused on its first frame. The end card carries the install line and the URL, and no version tag if every merge is a release.
 - **GIF for the README, MP4 for depth.** GitHub autoplays and loops GIFs; it plays videos muted, and only on a click. The GIF's first frame must tell the story on its own. Keep each upload under 10 MB (GitHub's limit): CRF 22 and a single audio track fit 46 s of 1080p into 8.7 MB.
@@ -38,6 +40,8 @@ What held up across several demo videos and dozens of takes: README hero videos,
 
 ## Process
 
+- **A handoff note isn't the brief.** Notes from someone else's talk listing five tests in detail led to a five-test cut; the person presenting wanted three. Agree the beat list with whoever will show the video.
+- **Rehearse before the take.** Run the scenario once unrecorded: first runs warm caches and can be far slower (one step took 144 s cold, 7 s warm), and a step that fails costs a whole take.
 - **Ask what bothers them before re-cutting.** Six takes were rejected on story before four pointed questions reset the direction in one round: what makes this complex, what's wrong with the story, what should the viewer believe afterwards, and what should be on screen.
 - **Find an exchange they loved and copy its shape, not its nouns.** The verbs of a good back-and-forth (checkable, checked, you're right, not for that reason, override accepted) transplant to a new subject.
 - **Reference videos beat descriptions.** Ask for one or two they like.
@@ -64,4 +68,5 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **WSL2 steps the clock.** It follows Windows' clock in jumps (about 2 s at a time was seen), and ffmpeg's capture pauses until the clock catches up, so a mark made just after a jump can land early. The recorder notes each jump in the timeline and warns at the end of the take.
 - **WSL2: Xvfb can't create its socket file**, because WSLg owns `/tmp/.X11-unix`. It still listens on the abstract socket, so check a display by connecting to it, not by looking for the file.
 - **tmux:** `set-option -g window-size manual` crashed tmux 3.6 at the next `new-session`; read-only viewers attach at the pane's size anyway.
+- **tmux reads a `;` argument as its command separator,** `send-keys -l` included: `echo a; echo b` arrived as `echo a echo b`. The kit sends semicolons as hex (`send-keys -H 3b`).
 - **Headless screenshots and webfonts:** a URL fragment (`#section`) scrolls before the webfonts load and leaves a band of whitespace; scroll by measured offsets instead.

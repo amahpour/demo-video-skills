@@ -540,6 +540,18 @@ def apply_captions(shots: list[Shot], caps: dict[str, Any]) -> None:
             s.caption = caps[s.key]
 
 
+def write_commands(take: Take, out: Path) -> Path | None:
+    """The lines typed on camera, in order, as out/commands.txt: hand them over with the video so
+    the commands people copy are the ones they watched. None if the take typed nothing."""
+    typed = [r for r in take.records if r.get("kind") == "typed"]
+    if not typed:
+        return None
+    panes = {r["pane"] for r in typed}
+    path = out / "commands.txt"
+    path.write_text("".join((f"[{r['pane']}] " if len(panes) > 1 else "") + r["text"] + "\n" for r in typed))
+    return path
+
+
 def fingerprint(args: argparse.Namespace, lines: list[dict[str, Any]], shots: list[Shot]) -> str:
     """What the soundtrack is made of: if any of it changes, the approved mix no longer applies."""
     music = args.music.expanduser().resolve() if args.music else None
@@ -587,6 +599,9 @@ def main(make_shots: Callable[[Take], list[Shot]], name: str = "demo",
     take = Take(build)
     out = build / "out"
     out.mkdir(exist_ok=True)
+    commands = write_commands(take, out)
+    if commands:
+        log(f"the lines typed on camera: {commands}")
     shots = make_shots(take)
     caps = take.captions
     if not (build / "captions.json").exists():

@@ -16,6 +16,10 @@ Run `python3 scripts/check_env.py --deep` first: it records one second of Chrome
 | `Kokoro failed` with `Error processing file '…/phontab'` | espeak-ng (bundled with Kokoro) keeps its data path in a 160-byte buffer. A venv deeper than about 120 characters overflows it. Put the venv somewhere short (`~/.venvs/kokoro`), or point `ESPEAK_DATA_PATH` at a short symlink to its `espeakng_loader/espeak-ng-data`. |
 | `Kokoro failed` installing spaCy's model | Kokoro installs `en_core_web_sm` through uv the first time, which needs `VIRTUAL_ENV` set to the venv; the kit sets it. It also needs network once. |
 | `pip install kokoro` fails building from source | No PyTorch wheels for your Python: use the Python 3.12 venv the voice-over skill's `setup_kokoro.sh` makes. |
+| Semicolons missing from a typed command | tmux takes a `;` argument as its own command separator, even with `send-keys -l`. The kit sends `;` as hex (`send-keys -H 3b`); do the same in your own tmux calls. |
+| A Python REPL sits on `...` after a one-line `for` | A compound statement needs an empty line to run. `terms.type` sends it; with your own tmux calls, send one more `Enter`. |
+| A container shell's prompt reads `I have no name!@…` | The container runs as your uid, which has no passwd entry there, and the image's bashrc puts `\u` in the prompt. Pipe the command into the shell instead of typing it (`echo 'python3 demo.py' \| docker exec -i <container> bash`), or set `PS1` in an rc file. |
+| Output lands out of order, or all at the end | The program's stdout isn't a terminal (`docker run` without `-t`, a pipe), so C programs buffer it. Add `-t`, or run it under `stdbuf -oL`. |
 | `no mark 'x'` | The take has no such mark: the error lists the ones it has. Was the take recorded with an older scenario? |
 | `The soundtrack changed since the mix that was approved` | Narration text, voice, music, levels or a shot's timing changed after `--audio-only`. Run `--audio-only` again and get the new mix approved. |
 | The music is too loud or too quiet | `uv run scripts/audio_check.py levels <take>/out` shows the gap; aim for about 7 dB (`--voice-lufs`, `--music-lufs`). |

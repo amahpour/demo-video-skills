@@ -1,6 +1,6 @@
 # Delivering the video
 
-The deliverable is the files, handed to the person who asked: `out/<name>.mp4`, `out/<name>.gif`, and the music's credit line if the video has music. Where they go next is their call. Don't upload anything to a public place on your own.
+The deliverable is the files, handed to the person who asked: `out/<name>.mp4`, `out/<name>.gif`, the music's credit line if the video has music, and `out/commands.txt` if the take typed into a terminal (the lines on camera, for people to copy). Where they go next is their call. Don't upload anything to a public place on your own.
 
 ## Sizes
 
