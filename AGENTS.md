@@ -8,7 +8,7 @@ demo-video-skills makes short product demo videos from real screen recordings. A
 
 | Path | What it is |
 |---|---|
-| `skills/demo-video/` | The main skill. `SKILL.md` is the workflow; `scripts/` holds the `demo_video` library, `new_project.py`, `check_env.py`, `audio_check.py` and the terminal viewer; `assets/template/` is a new project's rig (`record.py`, `edit.py`, `captions.json`, a sample app); `references/` holds the lessons, the research, the API and the troubleshooting table. |
+| `skills/demo-video/` | The main skill. `SKILL.md` is the workflow; `scripts/` holds the `demo_video` library, `new_project.py`, `check_env.py`, `audio_check.py`, `in_docker.py` and the terminal viewer; `assets/template/` is a new project's rig (`record.py`, `edit.py`, `captions.json`, a sample app), and `assets/docker/` the image for recording on macOS; `references/` holds the lessons, the research, the API and the troubleshooting table. |
 | `skills/voice-over/` | Kokoro setup, voice auditions, narration from a script. |
 | `.agents/skills/`, `.claude/skills/` | Pointers, so Codex and Claude Code find the skills: each `SKILL.md` there sends the agent to the real one in `skills/`. Keep their `name` and `description` identical to the real skill's. |
 | `projects/` | Video rigs, one folder per product. Git-ignored except its README: a rig names a product and its screens. |
@@ -33,7 +33,7 @@ These hold every time:
 ## Working on the kit itself
 
 - Python 3.10+, the standard library plus `pillow`, `numpy` and `websockets`, declared inline in each runnable script (PEP 723), so `uv run <script>` just works. Kokoro runs in its own Python 3.12 venv as a subprocess; never import it into the kit.
-- Linux only: Xvfb, ffmpeg with libx264, Chrome or Chromium; tmux for terminals.
+- Linux: Xvfb, ffmpeg with libx264, Chrome or Chromium; tmux for terminals. On macOS the same toolchain runs in Docker: put `python3 skills/demo-video/scripts/in_docker.py` in front of each command below that records or edits.
 - Test a change on the bundled sample before calling it done: `python3 skills/demo-video/scripts/new_project.py /tmp/demo-video-check`, then in that folder `uv run record.py --build /tmp/demo-video-check/take-1`, `uv run edit.py --build /tmp/demo-video-check/take-1 --stills`, then a render with `--gif`. Run `check_env.py --deep` after touching the recorder.
 - Keep the library small and readable: no frameworks, no new dependencies without a reason.
 - Docs are plain sentences, one paragraph per line (no hard wraps).

@@ -281,6 +281,9 @@ class Take:
 
     def __init__(self, build: Path, fps: int = FPS, dry: bool = False) -> None:
         self.build, self.fps, self.dry = build, fps, dry
+        if sys.platform == "darwin":  # Chrome for Mac can't draw on Xvfb: it would open on the real desktop
+            sys.exit(f"macOS records in Docker: python3 {Path(__file__).resolve().parent.parent / 'in_docker.py'} "
+                     f"uv run {Path(sys.argv[0]).name} {' '.join(sys.argv[1:])}")
         self.chrome = find_chrome() or sys.exit("no Chrome or Chromium on PATH (set CHROME to its path)")
         for tool in ("Xvfb", "ffmpeg"):
             shutil.which(tool) or sys.exit(f"{tool} is not on PATH")

@@ -14,7 +14,7 @@ Everything on screen is real app state: nothing is mocked, redrawn or stitched f
 
 ## Quick start
 
-You need Linux (or WSL2) with Xvfb, ffmpeg, Chrome or Chromium, and [uv](https://docs.astral.sh/uv/). On Ubuntu: `sudo apt install xvfb ffmpeg tmux fonts-noto-core`, plus Chrome and uv.
+You need Linux (or WSL2) with Xvfb, ffmpeg, Chrome or Chromium, and [uv](https://docs.astral.sh/uv/). On Ubuntu: `sudo apt install xvfb ffmpeg tmux fonts-noto-core`, plus Chrome and uv. On a Mac, install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and run the commands below through `in_docker.py` (see [On macOS](skills/demo-video/references/recording.md#on-macos)).
 
 ```bash
 git clone https://github.com/amahpour/demo-video-skills && cd demo-video-skills
@@ -71,8 +71,9 @@ The full set, with the reasons: [`lessons.md`](skills/demo-video/references/less
 |---|---|
 | `skills/demo-video/SKILL.md` | The workflow, with its gates |
 | `skills/demo-video/scripts/demo_video/` | The library: `record` (displays, windows, the timeline), `terminal` (tmux panes as video), `cut` (shots, captions, cards, MP4, GIF), `sound` (narration, the music bed, the mix) |
-| `skills/demo-video/scripts/` | `new_project.py`, `check_env.py`, `audio_check.py`, `chiptune.py` (an original music bed), the terminal viewer, the Kokoro runner |
+| `skills/demo-video/scripts/` | `new_project.py`, `check_env.py`, `audio_check.py`, `chiptune.py` (an original music bed), `in_docker.py` (recording on macOS, through Docker), the terminal viewer, the Kokoro runner |
 | `skills/demo-video/assets/template/` | A new project's rig, with a sample app |
+| `skills/demo-video/assets/docker/` | The Linux image `in_docker.py` records in on a Mac |
 | `skills/demo-video/references/` | Lessons, research, the recording and editing APIs, delivery, troubleshooting |
 | `skills/voice-over/` | Kokoro setup, auditions, narration from a script |
 | `projects/` | Your rigs (git-ignored: they name your product) |

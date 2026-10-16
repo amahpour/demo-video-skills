@@ -98,3 +98,37 @@ The terminal window loads xterm.js and its fonts from public CDNs, so the machin
 - **One take per folder.** `run()` refuses to record over a take; use `take-2`, `take-3`. Keep takes in `~/recordings/<project>/`, never in a scratch directory and never in git.
 - **Dry run first.** `--dry` saves `dry-<window>.png` at `take.ready()`: check legibility, the colour scheme and that nothing private shows before recording.
 - **Clock steps.** If the recorder warns that the system clock stepped (common on WSL2), check the shots near that moment in `--stills`, or record another take.
+
+## On macOS
+
+The recorder needs Linux: Chrome for Mac can't draw on a virtual X display, and Homebrew's ffmpeg has no x11grab. On a Mac the kit runs in a Linux container under [Docker Desktop](https://www.docker.com/products/docker-desktop/) instead, and `scripts/in_docker.py` goes in front of each command that records or edits. `new_project.py` only copies files, so it runs on the Mac as it is.
+
+```bash
+alias in-docker="python3 <kit>/skills/demo-video/scripts/in_docker.py"
+in-docker python3 <kit>/skills/demo-video/scripts/check_env.py --deep
+python3 <kit>/skills/demo-video/scripts/new_project.py projects/acme --url http://host.docker.internal:3000
+cd projects/acme
+in-docker uv run record.py --build ~/recordings/acme/take-1
+in-docker uv run edit.py --build ~/recordings/acme/take-1 --stills
+```
+
+The first run builds the image from `assets/docker/Dockerfile` (Debian with Xvfb, ffmpeg, Chromium, tmux and uv; a few minutes), and it rebuilds whenever that file changes. Each run sees the same paths as the Mac: the skills folder (read-only), the current folder and `~/recordings`, so a rig's paths and a take's paths work unchanged. Nothing else on the Mac is visible inside: run from the rig's folder and keep takes in `~/recordings/<project>/`. The wrapper warns about a path on the command line that the container can't see.
+
+The Mac's own `localhost` is `host.docker.internal` inside the container, which also reaches an app listening only on 127.0.0.1: give the rig that URL.
+
+A terminal take runs its commands inside the container, so the tools typed on camera have to be installed there. Build an image `FROM demo-video-kit` (tagged after the first run) that adds them, and point the wrapper at it with `DEMO_VIDEO_IMAGE`:
+
+```dockerfile
+FROM demo-video-kit
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends jq && rm -rf /var/lib/apt/lists/*
+USER rec
+```
+
+```bash
+docker build -t acme-demo . && DEMO_VIDEO_IMAGE=acme-demo in-docker uv run record.py --build ~/recordings/acme/take-2
+```
+
+Narration runs in the container too. Set Kokoro up once, into the cache volume, with `in-docker bash <kit>/skills/voice-over/scripts/setup_kokoro.sh`, then pass `--voice` to `edit.py` as usual.
+
+uv's packages, fontconfig's cache and the Kokoro venv live on a named volume, `demo-video-cache`, so later runs start quickly; `docker volume rm demo-video-cache` clears it. The container runs with `--security-opt seccomp=unconfined` so Chrome keeps its own sandbox: `--no-sandbox` would draw a warning bar into every recorded frame.

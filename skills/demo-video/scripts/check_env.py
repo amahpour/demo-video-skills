@@ -113,7 +113,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--deep", action="store_true", help="also record one second of Chrome on a virtual display")
     args = ap.parse_args()
-    row("ok" if platform.system() == "Linux" else "MISSING", "Linux", platform.platform())
+    if platform.system() == "Darwin":
+        here = Path(__file__).resolve().parent
+        row("MISSING", "Linux", f"macOS records in Docker: python3 {here / 'in_docker.py'} python3 {here / 'check_env.py'} --deep")
+    else:
+        row("ok" if platform.system() == "Linux" else "MISSING", "Linux", platform.platform())
     row("ok" if sys.version_info >= (3, 10) else "MISSING", "Python 3.10+", sys.version.split()[0])
     for tool, why in (("Xvfb", "virtual displays"), ("ffmpeg", "recording and encoding"), ("ffprobe", "reading takes")):
         row("ok" if shutil.which(tool) else "MISSING", tool, why if shutil.which(tool) else f"install it ({why})")
@@ -139,7 +143,8 @@ def main() -> None:
             f"{venv} has no kokoro: rerun the voice-over skill's setup_kokoro.sh")
     else:
         row("optional", "Kokoro voice", f"no venv at {venv}: only for narration (voice-over skill)")
-    if args.deep and chrome and shutil.which("Xvfb") and shutil.which("ffmpeg"):
+    # Linux only: elsewhere Chrome would open on the real desktop
+    if args.deep and platform.system() == "Linux" and chrome and shutil.which("Xvfb") and shutil.which("ffmpeg"):
         deep(chrome)
     print("\nready" if ok else "\nfix the MISSING rows first")
     sys.exit(0 if ok else 1)
