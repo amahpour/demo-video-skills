@@ -71,7 +71,7 @@ The full set, with the reasons: [`lessons.md`](skills/demo-video/references/less
 |---|---|
 | `skills/demo-video/SKILL.md` | The workflow, with its gates |
 | `skills/demo-video/scripts/demo_video/` | The library: `record` (displays, windows, the timeline), `terminal` (tmux panes as video), `cut` (shots, captions, cards, MP4, GIF), `sound` (narration, the music bed, the mix) |
-| `skills/demo-video/scripts/` | `new_project.py`, `check_env.py`, `audio_check.py`, the terminal viewer, the Kokoro runner |
+| `skills/demo-video/scripts/` | `new_project.py`, `check_env.py`, `audio_check.py`, `chiptune.py` (an original music bed), the terminal viewer, the Kokoro runner |
 | `skills/demo-video/assets/template/` | A new project's rig, with a sample app |
 | `skills/demo-video/references/` | Lessons, research, the recording and editing APIs, delivery, troubleshooting |
 | `skills/voice-over/` | Kokoro setup, auditions, narration from a script |
@@ -82,7 +82,7 @@ The full set, with the reasons: [`lessons.md`](skills/demo-video/references/less
 
 Narration runs locally with [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) (Apache-2.0) in its own Python 3.12 venv; no audio or script leaves your machine. See [`skills/voice-over/SKILL.md`](skills/voice-over/SKILL.md).
 
-No music is included. Bring a track you're allowed to use, and credit it: Creative Commons Attribution tracks need their credit line on the end card and wherever the video is posted.
+No music is included. Bring a track you're allowed to use, and credit it: Creative Commons Attribution tracks need their credit line on the end card and wherever the video is posted. Or generate an original 8-bit bed in a style (chiptune, jazz, hip hop, rock, bossa, or one you write) with `skills/demo-video/scripts/chiptune.py`, timed to the cut's cards, with no credit line needed.
 
 The terminal viewer loads [xterm.js](https://xtermjs.org/) (MIT) and its fonts from public CDNs at recording time.
 

@@ -36,6 +36,7 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **Static gains, no loudness dynamics on sparse speech.** One-pass `loudnorm` on a track that is mostly silence pumps.
 - **Read URLs off the screen, not aloud.** "The link's on screen" beats a spoken address.
 - **Voices.** Kokoro-82M, locally. `bm_george` (British male) was picked in two separate auditions, with `am_michael` (American male) the runner-up both times. Piper's voices sounded unnatural next to them.
+- **An original bed when there's no track to use.** `scripts/chiptune.py` composes one in a chosen style and stops on the cards. For polished videos a real recording still sounded better to the people they were made for: offer both.
 - **Credit the music.** Use a track you're allowed to use, and put its credit line (Creative Commons Attribution tracks require one) on the end card and wherever the file is posted.
 
 ## Process

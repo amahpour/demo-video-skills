@@ -620,13 +620,16 @@ def main(make_shots: Callable[[Take], list[Shot]], name: str = "demo",
         shutil.rmtree(d, ignore_errors=True)
         d.mkdir()
         t = 0.0
+        timings = []
         for k, s in enumerate(shots):
             img = s.draw(0.5).copy()
             draw_caption(img, s.caption, 1.0, 50, s.top, colors)
             draw_badge(img, s.badge())
             img.resize((960, 540), Image.LANCZOS).save(d / f"{k:02d}-{s.key or 'shot'}.png")
             log(f"{k:2d}  {t:5.1f}s  {s.dur:4.1f}s  {s.key or '-':12s} {s.caption}")
+            timings.append({"key": s.key, "start": round(t, 3), "dur": round(s.dur, 3), "card": s.card})
             t += s.dur
+        (out / "shots.json").write_text(json.dumps(timings, indent=1) + "\n")   # for scripts/chiptune.py --shots
         log(f"{len(shots)} shots, {t:.1f} s; stills in {d} (narration, if any, will stretch some beats)")
         return
 
