@@ -70,4 +70,5 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **WSL2: Xvfb can't create its socket file**, because WSLg owns `/tmp/.X11-unix`. It still listens on the abstract socket, so check a display by connecting to it, not by looking for the file.
 - **tmux:** `set-option -g window-size manual` crashed tmux 3.6 at the next `new-session`; read-only viewers attach at the pane's size anyway.
 - **tmux reads a `;` argument as its command separator,** `send-keys -l` included: `echo a; echo b` arrived as `echo a echo b`. The kit sends semicolons as hex (`send-keys -H 3b`).
+- **Chrome in Docker: keep the sandbox.** The default seccomp profile leaves Chrome no usable sandbox, and `--no-sandbox` puts an "unsupported command-line flag" bar across the top of every recorded frame. `--security-opt seccomp=unconfined` lets the sandbox work and leaves the frame clean.
 - **Headless screenshots and webfonts:** a URL fragment (`#section`) scrolls before the webfonts load and leaves a band of whitespace; scroll by measured offsets instead.

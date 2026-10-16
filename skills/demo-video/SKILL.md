@@ -28,7 +28,7 @@ Paths below are relative to this skill's folder: the tools are in `scripts/`, th
 python3 scripts/check_env.py --deep
 ```
 
-Linux (or WSL2) with Xvfb, ffmpeg with libx264, Chrome or Chromium, and uv; tmux to record terminals; the Kokoro venv for a voice (the `voice-over` skill sets it up). Fix every MISSING row before going on.
+Linux (or WSL2) with Xvfb, ffmpeg with libx264, Chrome or Chromium, and uv; tmux to record terminals; the Kokoro venv for a voice (the `voice-over` skill sets it up). Fix every MISSING row before going on. On macOS, run every command that records or edits (this check included) through `scripts/in_docker.py`, which needs Docker Desktop: see `references/recording.md`, "On macOS".
 
 ### 2. The brief
 
