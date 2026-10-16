@@ -1,0 +1,21 @@
+# Media and takes never go in git: takes live in ~/recordings/<project>/
+*.mkv
+*.mp4
+*.mov
+*.webm
+*.gif
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+out/
+
+# Your rigs name your product: they stay local (commit them to a private fork if you like)
+projects/*
+!projects/README.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
