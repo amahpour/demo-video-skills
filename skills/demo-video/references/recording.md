@@ -25,7 +25,7 @@ if __name__ == "__main__":
 | File | What it is |
 |---|---|
 | `<window>.mkv` | One recording per window, H.264 at CRF 14 (near-lossless, so the edit can crop), with wall-clock timestamps (`-copyts`) |
-| `timeline.jsonl` | One JSON object per line, each with `t` (wall-clock seconds): `mark` records (`what` plus whatever you passed), `term` records (a terminal's text whenever it changed), `clock` records (a system clock step) |
+| `timeline.jsonl` | One JSON object per line, each with `t` (wall-clock seconds): `mark` records (`what` plus whatever you passed), `term` records (a terminal's text whenever it changed), `typed` records (each line typed into a terminal), `clock` records (a system clock step) |
 | `views.json` | Each window's CSS size, device scale and pixel size; `cells` for terminal windows (where the character cells are) |
 | `*.log` | Xvfb, Chrome, ffmpeg and the terminal viewer's logs |
 | `dry-*.png` | `--dry` only: a screenshot of each window at `take.ready()` |
@@ -77,10 +77,14 @@ take.mark("tests", row=...)
 
 | Call | What it does |
 |---|---|
-| `open(name, title, subtitle, badge, color, argv=None, cwd=None, env=None, css=(1280, 720), scale=1.5)` | A pane running a clean bash (or `argv`), and its window. `env` is the pane's whole environment on top of a minimal default: give it a throwaway `HOME` whenever the command writes config. |
-| `type(name, text, cps=22, enter=True)` / `key(name, key)` | Type a command, or press a tmux key (`Enter`, `Escape`, `C-c`, `Up`). |
-| `screen(name)` / `wait_for(name, pattern, timeout)` | The pane's text now; wait for a regular expression in it. |
+| `open(name, title, subtitle, badge, color, argv=None, cwd=None, env=None, css=(1280, 720), scale=1.5, prompt=None)` | A pane running a clean bash (or `argv`), and its window. `env` is the pane's whole environment on top of a minimal default: give it a throwaway `HOME` whenever the command writes config. With `argv`, `prompt` is a regular expression the last line matches when it's ready for input (a Python REPL: `r">>> ?$"`). |
+| `type(name, text, cps=22, enter=True)` / `key(name, key)` | Type a command, or press a tmux key (`Enter`, `Escape`, `C-c`, `Up`). In a Python REPL, a one-line `for`, `with` or `if` also gets the empty line that runs it. |
+| `screen(name)` / `wait_for(name, pattern, timeout)` | The pane's text now; wait for a regular expression in what it printed from the last typed command on, lines that scrolled off included and wrapped lines joined. |
 | `watch(name, pattern)` | Mark `work` whenever a new line matches. |
+
+A REPL works the same way: `terms.open("repl", title="python", argv=["python3", "-q"], prompt=r">>> ?$")`, then type one line per beat. Paste-sized setup (imports, names the later lines use) is better typed before `take.ready()`, so every line on camera is one the viewer can follow.
+
+Every typed line goes to the timeline, and the edit writes them to `out/commands.txt`: hand that file over with the video, so the commands people copy are the ones they watched.
 
 The terminal window loads xterm.js and its fonts from public CDNs, so the machine needs network access while recording terminals.
 

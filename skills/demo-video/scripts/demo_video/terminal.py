@@ -60,13 +60,27 @@ class Tmux:
             raise RuntimeError(f"tmux new-session failed: {r.stderr.strip()}")
 
     def send_text(self, name: str, text: str) -> None:
-        self.run("send-keys", "-t", name, "-l", text)
+        # tmux reads a ";" argument as its own command separator and sends nothing, -l or not,
+        # so semicolons go over as hex
+        for i, part in enumerate(text.split(";")):
+            if i:
+                self.run("send-keys", "-t", name, "-H", "3b")
+            if part:
+                self.run("send-keys", "-t", name, "-l", part)
 
     def key(self, name: str, key: str) -> None:
         self.run("send-keys", "-t", name, key)
 
     def capture(self, name: str) -> str:
         return self.run("capture-pane", "-p", "-t", name).stdout
+
+    def history(self, name: str) -> list[str]:
+        """Every line the pane has shown, oldest first: scrolled-off lines included, wrapped lines
+        joined, blank rows below the last line dropped."""
+        lines = self.run("capture-pane", "-p", "-J", "-S", "-", "-t", name).stdout.split("\n")
+        while lines and not lines[-1].strip():
+            lines.pop()
+        return lines
 
     def kill_server(self) -> None:
         self.run("kill-server")
@@ -85,6 +99,7 @@ class Terminals:
         self.last: dict[str, list[str]] = {}
         self.watches: dict[str, list[re.Pattern[str]]] = {}
         self.cells: dict[str, Any] = {}
+        self.typed: dict[str, str] = {}
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._poll, daemon=True)
         self.thread.start()
@@ -99,17 +114,19 @@ class Terminals:
 
     def open(self, name: str, title: str = "", subtitle: str = "", badge: str = "", color: str = "#6aa8ff",
              argv: list[str] | None = None, cwd: str | None = None, env: dict[str, str] | None = None,
-             css: tuple[int, int] = (1280, 720), scale: float = 1.5) -> Window:
+             css: tuple[int, int] = (1280, 720), scale: float = 1.5, prompt: str | None = None) -> Window:
         """A shell (or `argv`) in a new pane, and its window. `env` is the whole environment the
         pane gets (a clean default if None): give it a throwaway HOME, never your real one, when
         the command writes config. `title`, `subtitle`, `badge` and `color` dress the window's
-        title bar (for example the agent's name and its colour)."""
+        title bar (for example the agent's name and its colour). `prompt` is a regular expression
+        the last line matches once `argv` is ready for input (a Python REPL: r">>> ?$")."""
         home = cwd or os.getcwd()
         base_env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": home, "TERM": "xterm-256color",
                     "COLORTERM": "truecolor", "LANG": "C.UTF-8", "PS1": "$ "}
         pane_env = dict(base_env, **(env or {}))
         rc = self.take.build / f"{name}-rc.sh"
-        rc.write_text(f"PS1={shlex.quote(pane_env.get('PS1', '$ '))}\n")
+        # no history file: HOME is often the demo checkout
+        rc.write_text(f"PS1={shlex.quote(pane_env.get('PS1', '$ '))}\nHISTFILE=/dev/null\n")
         cmd = argv or ["bash", "--noprofile", "--rcfile", str(rc), "-i"]
         self.tmux.new_session(name, home, pane_env, cmd, self.cols, self.rows)
         # no status line; viewers attach at the pane's size, so it never changes
@@ -117,8 +134,10 @@ class Terminals:
         self.tmux.run("set-option", "-g", "status", "off")
         self.tmux.run("set-option", "-ga", "terminal-overrides", ",xterm-256color:Tc")
         self.panes.append(name)
-        if argv is None:
-            wait(lambda: self.screen(name).rstrip().endswith("$"), 10, f"the {name} prompt")
+        ready = r"\$$" if argv is None else prompt
+        if ready:
+            rx = re.compile(ready)
+            wait(lambda: rx.search(self.screen(name).rstrip()), 10, f"the {name} prompt")
             self.tmux.key(name, "C-l")
             time.sleep(0.3)
         q = urllib.parse.urlencode({"name": name, "cols": self.cols, "rows": self.rows, "port": self.port,
@@ -133,21 +152,43 @@ class Terminals:
         return self.tmux.capture(name)
 
     def type(self, name: str, text: str, cps: float = 22, enter: bool = True) -> None:
-        """Type a command at a person's pace (commands read faster than prose: ~22 a second)."""
+        """Type a command at a person's pace (commands read faster than prose: ~22 a second).
+        The line goes to the timeline (kind "typed"), for the edit's out/commands.txt."""
+        self.typed[name] = text
+        self.take.tl.write({"kind": "typed", "pane": name, "text": text})
         for ch in text:
             self.tmux.send_text(name, ch)
             time.sleep(1 / cps)
         if enter:
             time.sleep(0.35)
             self.tmux.key(name, "Enter")
+            if re.match(r"(async\s+)?(for|while|with|if|try|def|class)\b", text):
+                # a one-line compound statement leaves a Python REPL on its "..." prompt: an empty
+                # line runs it (a shell has run it already and shows no "...")
+                time.sleep(0.4)
+                lines = self.tmux.history(name)
+                if lines and lines[-1].strip() == "...":
+                    self.tmux.key(name, "Enter")
 
     def key(self, name: str, key: str) -> None:
         """A tmux key name: Enter, Escape, Up, Down, C-c, …"""
         self.tmux.key(name, key)
 
     def wait_for(self, name: str, pattern: str, timeout: float = 60) -> re.Match[str]:
+        """Wait for a regular expression in what the pane printed from the last typed command on
+        (everything, if nothing was typed): lines that scrolled off count, wrapped lines are joined."""
         rx = re.compile(pattern, re.M)
-        return wait(lambda: rx.search(self.screen(name)), timeout, f"/{pattern}/ in {name}", step=0.3)
+        return wait(lambda: rx.search(self.since_typed(name)), timeout, f"/{pattern}/ in {name}", step=0.3)
+
+    def since_typed(self, name: str) -> str:
+        """The pane's text from the line holding the last typed command to the end."""
+        lines = self.tmux.history(name)
+        typed = self.typed.get(name)
+        if typed:
+            for i in range(len(lines) - 1, -1, -1):
+                if typed in lines[i]:
+                    return "\n".join(lines[i:])
+        return "\n".join(lines)
 
     def watch(self, name: str, pattern: str) -> None:
         """Mark "work" (with pane, row and line) whenever a new line in `name` matches `pattern`."""
