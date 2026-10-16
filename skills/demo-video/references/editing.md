@@ -85,3 +85,18 @@ Each take has its own, because each take's story is a little different: the firs
 - The music plays alone for the lead-in, fades in over 0.8 s and out over the last 2.5 s.
 - Integrated loudness (EBU R128) ignores the silence between lines, so sparse narration measures right; one-pass `loudnorm` on such a track pumps.
 - Bring a track you're allowed to use. Creative Commons Attribution tracks need their credit line on the end card and wherever the video is posted.
+
+## An original music bed
+
+No track you may use? `scripts/chiptune.py` writes an original one, so there's no licence to check and no credit line. It plays 8-bit instruments in a style (`--list` shows them: chiptune, jazz, hiphop, rock, bossa), and with the cut's timings it stops for a bar on each card and lands its ending on the end card:
+
+```bash
+uv run edit.py --build <take> --stills                    # also writes out/shots.json
+uv run <skill>/scripts/chiptune.py --style jazz --shots <take>/out/shots.json --seed 3 --out <take>/out/music.wav
+uv run edit.py --build <take> --audio-only --music <take>/out/music.wav
+```
+
+- `--seed` picks the tune: tempo within the style's range, key, progression, drum variant and melody. Use a new seed per video. `--bpm`, `--key` and `--swing` each override one choice and leave the rest of the tune alone.
+- A style is data. `--show jazz` prints one as JSON: save it, change what you like (tempo range, keys, progressions in Roman numerals, drum patterns on a 16-step grid, lead rhythms and scale, cadence, sounds, mix) and pass it as `--style-file`. A file with `"base": "jazz"` and only the keys you change works too.
+- With narration, shots stretch to fit the passages after `--stills`, so card stops would miss the cards: use `--seconds <length>` for a steady bed instead.
+- The approval gate still applies: the generated track is the music in the mix you send for a listen.

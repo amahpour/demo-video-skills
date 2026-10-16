@@ -38,7 +38,7 @@ Ask the person, in one message, and don't build until you have answers:
 - What does the product do that nothing else does? That moment is the story.
 - What should be on screen, and what should the viewer believe afterwards?
 - One or two videos they like, as references.
-- Narration or captions only? Which voice (audition with the `voice-over` skill)? Which music track, and its licence and credit line?
+- Narration or captions only? Which voice (audition with the `voice-over` skill)? Which music track, and its licence and credit line, or an original bed from `scripts/chiptune.py` in a style they pick?
 
 Then propose a beat list (6–10 beats, 20–45 s: cold open on the payoff, the one input, the work, the payoff, the end card) and agree it.
 
