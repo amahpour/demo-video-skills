@@ -14,6 +14,11 @@ The deliverable is the files, handed to the person who asked: `out/<name>.mp4`, 
 - **The MP4** plays only on a click, muted at first, so it's for depth, not the hero. GitHub plays a video inline only when it's uploaded to GitHub itself: in the browser, drag the file into an issue, pull request or README edit box; GitHub uploads it to `github.com/user-attachments/assets/...` and inserts the link. Put that link on its own line in the README.
 - Put the install commands in the README as text people can copy, not only on the end card.
 
+## On a docs site
+
+- **Use the same upload.** A docs site built from the repository plays the MP4 GitHub already holds: upload it as an attachment to a pull request (GitHub gives it a `https://github.com/user-attachments/assets/…` address) and embed that address with `<video controls preload="metadata" width="100%" src="…"></video>`. The video never enters git.
+- **Open each feature page on its video.** Long feature pages with no video were called far too long: the ask was a short page that opens with a real take, the detail moved to a reference page. Plan a feature's video with the feature, not after it.
+
 ## Ship deliverables, not tooling
 
 The product's repository gets the media and nothing else: not the recorder, not the editor, not the take. The rig stays in this kit's `projects/<name>/`, the take in `~/recordings/<name>/`, so the video can be re-cut or re-recorded when the UI changes.

@@ -35,7 +35,7 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **Keep the stems separate and mix last.** The first mix had the music within 2 dB of the voice; measuring loudness second by second showed it at once.
 - **Static gains, no loudness dynamics on sparse speech.** One-pass `loudnorm` on a track that is mostly silence pumps.
 - **Read URLs off the screen, not aloud.** "The link's on screen" beats a spoken address.
-- **Voices.** Kokoro-82M, locally. `bm_george` (British male) was picked in two separate auditions, with `am_michael` (American male) the runner-up both times. Piper's voices sounded unnatural next to them.
+- **Voices.** Kokoro-82M, locally. `bm_george` (British male) was picked in two separate auditions, with `am_michael` (American male) the runner-up both times. Piper's voices sounded unnatural next to them. Later, heard live, the picked voice was called "a little tacky": read Kokoro's own grades (`VOICES.md` in its model repository) before an audition. When checked, `af_heart` was graded A and `af_bella` A-, but no male voice was above C+ (`am_michael`, `am_fenrir`, `am_puck`), and `bm_george` was C. Audition the same line in several voices, in one file.
 - **An original bed when there's no track to use.** `scripts/chiptune.py` composes one in a chosen style and stops on the cards. For polished videos a real recording still sounded better to the people they were made for: offer both.
 - **Credit the music.** Use a track you're allowed to use, and put its credit line (Creative Commons Attribution tracks require one) on the end card and wherever the file is posted.
 
@@ -44,10 +44,12 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **A handoff note isn't the brief.** Notes from someone else's talk listing five tests in detail led to a five-test cut; the person presenting wanted three. Agree the beat list with whoever will show the video.
 - **Rehearse before the take.** Run the scenario once unrecorded: first runs warm caches and can be far slower (one step took 144 s cold, 7 s warm), and a step that fails costs a whole take.
 - **Ask what bothers them before re-cutting.** Six takes were rejected on story before four pointed questions reset the direction in one round: what makes this complex, what's wrong with the story, what should the viewer believe afterwards, and what should be on screen.
+- **A storyboard as one picture.** A frame per beat (a still from footage you already have, or a labelled card), its time, caption and source, and under it a short numbered list of the choices left, each with a recommendation. That got a decision in one round; paragraphs describing the same plan were sent back as too much text.
 - **Find an exchange they loved and copy its shape, not its nouns.** The verbs of a good back-and-forth (checkable, checked, you're right, not for that reason, override accepted) transplant to a new subject.
 - **Reference videos beat descriptions.** Ask for one or two they like.
 - **Ship deliverables, not tooling.** The product's repository gets the GIF and the uploaded MP4; the recorder and editor stay in this kit. Video tooling was once pulled back out of a product's pull request for exactly that reason.
 - **Never build in a scratch directory.** Session scratch space gets wiped; one whole pipeline was lost that way. Rigs live in the kit's `projects/<name>/`, raw takes in `~/recordings/<name>/`.
+- **Two rigs, one machine.** To film two demos on one machine at once, give each rig its own range of X display numbers and queue every take on one machine-wide lock (`flock`), so two takes never run together and neither steals the other's CPU mid-take.
 - **A real take is a test of the product.** Takes have exposed real bugs: a review that sat still for 18 minutes because an update woke nobody, a long option clipped in the UI. Say so, fix them, and re-record. That is failing fast, and it's worth it.
 
 ## Demos of coding agents
@@ -58,10 +60,13 @@ What held up across several demo videos and dozens of takes: README hero videos,
 - **The demo checkout's instructions must match the take.** If the agent should fix in place on the checked-out branch, say so; a general rule like "make a worktree" will otherwise send it somewhere the camera isn't.
 - **End a take on a settled state.** Nothing moved for a minute, the work had its time, and an agent waiting for messages counts as idle.
 - **Keep secrets off disk and off screen.** Read sign-in links and tokens from an unrecorded terminal and pass them in memory. Use a demo account and made-up data.
+- **A copied login can't renew itself.** A rig that runs a real agent CLI from a copy of the person's login (so their real configuration stays untouched) stalled mid-take when the access token expired: the copy can't refresh, and writing a refreshed token back would touch the real configuration. Check the token's expiry before a take; if it's close, ask the person to start the CLI once so it renews.
+- **Film a call through a participant you run.** A video-call platform's guest page refused a scripted browser. Rather than work around its bot check, the call was shown through the screen of a meeting bot already in it, with the address bar (it held the meeting ID) cropped off. A join link carries its passcode: keep it in a mode-0600 file, never on a command line or in an environment variable, a log or a caption.
 
 ## Rig gotchas
 
 - **CDP: don't enable a domain you won't drain.** `Network.enable` filled the socket's queue and the keepalive timed out; `Network.setCookies` works without it.
+- **CDP's screencast misses native full screen.** `Page.startScreencast` doesn't include the Fullscreen API's top layer: a full-screen view recorded that way showed the page underneath it. x11grab of the virtual display captures it, and so do timed screenshots.
 - **A second window is an app window on the same origin.** Start it on the app's own URL (not `about:blank`, which brings tabs and an address bar), copy the session cookies over CDP, and reload.
 - **Frame from the layout after the click.** Opening a panel can move everything; measure boxes after the move, not before.
 - **Chrome on a Wayland desktop can open on your real screen.** Unset `WAYLAND_DISPLAY`, pass `--ozone-platform=x11` and point `DISPLAY` at the virtual display.
